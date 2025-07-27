@@ -21,6 +21,7 @@ jobs:
         
         - name: push image to dockerhub
           run: |
+            docker login -u mezozaki12 -p ${{secrets.TODOIST_PROJECT}}
             docker push mezozaki12/todo_list_project:latest
 
 
