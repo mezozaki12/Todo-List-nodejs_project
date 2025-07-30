@@ -1,0 +1,50 @@
+--- 
+- name: Playbook to set up an aws Ec2 (RedHat) instance with Docker and git.
+
+  hosts: Ec2                                      # public ip of the Ec2 from inventory 
+  become: yes                                     # use root privlege 
+
+  tasks:
+
+    - name: Add Docker Repo 
+      shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Install Docker   # a built-in module to install docker
+      yum:
+        name: docker-ce
+        state: present
+
+    - name: Start Docker # a built-in module to start docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create cli-plugins directory # Ensure the directory for Docker CLI plugins exists
+      file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
+        mode: '0755'
+
+    - name: Download Docker Compose plugin # Download the Docker Compose plugin
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64
+        dest: /usr/local/lib/docker/cli-plugins/docker-compose
+        mode: '0755'
+
+    - name: Copy docker-compose.yml # transfer the docker-compose.yml file to the instance
+      copy:
+        src: /home/mezozaki12/Desktop/Intern_Project/Todos-nodejs/docker-compose.yml
+        dest: /home/ec2-user/docker-compose.yml
+        mode: '0644'
+
+    - name: install git on the RH # Install git if not already installed
+      yum:
+        name: git
+        state: present
+      when: ansible_os_family == "RedHat"
+    
+
+    
