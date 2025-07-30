@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    image: mezozaki12/todo_list_project
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    environment:
+    - mongoDbUrl=mongodb://moaz:moaz123@mongodb:27017/todo?authSource=admin
+    - PORT=4000
+    restart: always
+
+  mongodb:   # MongoDB service
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: moaz
+      MONGO_INITDB_ROOT_PASSWORD: moaz123
+      MONGO_INITDB_DATABASE: todo
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+    healthcheck:    # check if MongoDB is running evry 30 seconds
+
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5           # fails after 5 retries
+      start_period: 10s    # initial delay before starting health checks
+
+  watchtower:  # Automatically update containers
+    image: containrrr/watchtower 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300   # Check for updates every 5 minutes
+    restart: always 
+
+volumes:
+  mongo-data:
