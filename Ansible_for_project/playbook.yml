@@ -1,6 +1,6 @@
 --- 
-- name: Playbook to set up an aws Ec2 (RedHat) instance with Docker and git.
 
+- name: Playbook to set up an aws Ec2 (RedHat) instance with Docker, k3s and git.
   hosts: Ec2                                      # public ip of the Ec2 from inventory 
   become: yes                                     # use root privlege 
 
@@ -11,10 +11,12 @@
       args:
         creates: /etc/yum.repos.d/docker-ce.repo
 
+
     - name: Install Docker   # a built-in module to install docker
       yum:
         name: docker-ce
         state: present
+
 
     - name: Start Docker # a built-in module to start docker service
       service:
@@ -22,11 +24,13 @@
         state: started
         enabled: yes
 
+
     - name: Create cli-plugins directory # Ensure the directory for Docker CLI plugins exists
       file:
         path: /usr/local/lib/docker/cli-plugins
         state: directory
         mode: '0755'
+
 
     - name: Download Docker Compose plugin # Download the Docker Compose plugin
       get_url:
@@ -34,17 +38,39 @@
         dest: /usr/local/lib/docker/cli-plugins/docker-compose
         mode: '0755'
 
+
     - name: Copy docker-compose.yml # transfer the docker-compose.yml file to the instance
       copy:
         src: /home/mezozaki12/Desktop/Intern_Project/Todos-nodejs/docker-compose.yml
         dest: /home/ec2-user/docker-compose.yml
         mode: '0644'
 
+
     - name: install git on the RH # Install git if not already installed
       yum:
         name: git
         state: present
       when: ansible_os_family == "RedHat"
+      
+
+    - name: Install k3s   # Install k3s using on the ec2 instance instead of kubeadm (assumption)
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+
+    - name: Copy kubeconfig for ec2-user # Copy the kubeconfig file to the ec2-user's home directory and change premissions
+      shell: |
+        mkdir -p /home/ec2-user/.kube
+        cp /etc/rancher/k3s/k3s.yaml /home/ec2-user/.kube/config
+        chown ec2-user:ec2-user /home/ec2-user/.kube/config
+        chmod 600 /home/ec2-user/.kube/config
     
+    - name: Copy Kubernetes deployment YAML to EC2
+      copy:
+       src: /home/mezozaki12/Desktop/Intern_Project/Todos-nodejs/todo_app_k8s_file.yml
+       dest: /home/ec2-user/todo-k8s.yaml                         
+       mode: '0644' #file permissions
+
 
     
