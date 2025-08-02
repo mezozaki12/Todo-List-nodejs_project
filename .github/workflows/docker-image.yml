@@ -1,8 +1,8 @@
 #this is github action workflow file to build and publish a docker image to dockerhub
 name: Build & publish image to docker hub
 
-on:
-   [workflow_dispatch]
+on:                         # run this workflow on the following events
+   [workflow_dispatch]      # manual trigger
   
 jobs:
   

@@ -4,7 +4,7 @@
 #****************************************************************************************#
 
 # MongoDB Deployment and Service
-# This deployment runs 3 replicas of MongoDB and exposes it internally within the cluster.
+# This deployment runs 1 replicas of MongoDB and exposes it internally within the cluster.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,7 +37,7 @@ spec:
   clusterIP: None
 ---
 # Todo App Deployment and Service
-# This deployment runs 3 replicas of the Todo app and exposes it via a NodePort service
+# This deployment runs 1 replicas of the Todo app and exposes it via a NodePort service
 apiVersion: apps/v1
 kind: Deployment
 metadata:

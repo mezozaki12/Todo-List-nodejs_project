@@ -13,11 +13,6 @@ RUN npm install
 # Copy all application code to the working directory
 COPY . .
 
-ENV mongoDbUrl=mongodb://moaz:moaz123@mongodb:27017/todo?authSource=admin
-ENV PORT=4000
-
-
-
 # Expose the port on which the application will run
 EXPOSE 4000
 
